@@ -10,7 +10,7 @@ using json = nlohmann::json;
 
 namespace ECS
 {
-	enum componentKey { component, transform, sprite, animation, boxCollider};
+	enum class componentKey : int { component, transform, sprite, animation, boxCollider};
 
 	struct Component;
 	struct Transform;
@@ -61,7 +61,7 @@ namespace ECS
 
 	struct Transform : public Component
 	{
-		Transform(GameObject* aParent, int aX = 0.0f, int aY = 0.0f, float aScaleX = 1.0f, float aScaleY = 1.0f);
+		Transform(GameObject* aParent, float aX = 0.0f, float aY = 0.0f, float aScaleX = 1.0f, float aScaleY = 1.0f);
 
 		componentKey getName();
 
@@ -102,12 +102,13 @@ namespace ECS
 		BoxCollider(GameObject* aParent);
 
 		// custom size
-		BoxCollider(GameObject* aParent, vector<float> aPos, vector<int> aColliderSize);
+		BoxCollider(GameObject* aParent, float aX, float aY, vector<int> aColliderSize);
 
 		componentKey getName();
 
 		bool isActive = true;
-		vector<float> pos = { 0.0f, 0.0f };
+		float x;
+		float y;
 		vector<int> colliderSize;
 		vector<BoxCollider*> collidingWith;
 		GameObject* parent;
@@ -189,10 +190,10 @@ namespace ECS
 
 	componentKey Component::getName()
 	{
-		return component;
+		return componentKey::component;
 	}
 
-	Transform::Transform(GameObject* aParent, int aX, int aY, float aScaleX, float aScaleY)
+	Transform::Transform(GameObject* aParent, float aX, float aY, float aScaleX, float aScaleY)
 	{
 		x = aX;
 		y = aY;
@@ -204,7 +205,7 @@ namespace ECS
 
 	componentKey Transform::getName()
 	{
-		return transform;
+		return componentKey::transform;
 	}
 
 	Sprite::Sprite(GameObject* aParent, string aTileSetName)
@@ -216,7 +217,7 @@ namespace ECS
 
 	componentKey Sprite::getName()
 	{
-		return sprite;
+		return componentKey::sprite;
 	}
 
 	Animation::Animation(GameObject* aParent, string aTileSetName)
@@ -232,30 +233,31 @@ namespace ECS
 
 	componentKey Animation::getName()
 	{
-		return animation;
+		return componentKey::animation;
 	}
 
 	// sprite size
 	BoxCollider::BoxCollider(GameObject* aParent)
 	{
 		parent = aParent;
-		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(sprite)->second;
+		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(componentKey::sprite)->second;
 		colliderSize = myAnimation->tileSize;
 		boxColliderList.push_back(this);
 	}
 
 	// custom size
-	BoxCollider::BoxCollider(GameObject* aParent, vector<float> aPos, vector<int> aColliderSize)
+	BoxCollider::BoxCollider(GameObject* aParent, float aX, float aY, vector<int> aColliderSize)
 	{
 		parent = aParent;
-		pos = aPos;
+		x = aX;
+		y = aY;
 		colliderSize = aColliderSize;
 		boxColliderList.push_back(this);
 	}
 
 	componentKey BoxCollider::getName()
 	{
-		return boxCollider;
+		return componentKey::boxCollider;
 	}
 
 	//----------------------------------//
@@ -305,7 +307,7 @@ namespace ECS
 
 		while (myParent)
 		{
-			Transform* myTransform = (Transform*)myParent->getComponentMap().find(transform)->second;
+			Transform* myTransform = (Transform*)myParent->getComponentMap().find(componentKey::transform)->second;
 
 			myX += myTransform->x;
 			myY += myTransform->y;
@@ -329,9 +331,9 @@ namespace ECS
 				GameObject* myParent = mySprite->parent;
 				TransformSum* myTransformSum = getTransformSum(myParent);
 
-				if (mySprite->parent->getComponentMap().count(animation))
+				if (mySprite->parent->getComponentMap().count(componentKey::animation))
 				{
-					Animation* myAnimtation = (Animation*)mySprite->parent->getComponentMap().find(animation)->second;
+					Animation* myAnimtation = (Animation*)mySprite->parent->getComponentMap().find(componentKey::animation)->second;
 					int tilesX = myAnimtation->tileSetSize[0] / myAnimtation->tileSize[0];
 					int TilesY = myAnimtation->tileSetSize[1] / myAnimtation->tileSize[1];
 					int tile = myAnimtation->tile;
@@ -362,8 +364,8 @@ namespace ECS
 			CollisionPos* myCollisionPos;
 
 			float pos1[2] = {
-				myBoxCollider->pos[0] + getTransformSum(myBoxCollider->parent)->x,
-				myBoxCollider->pos[1] + getTransformSum(myBoxCollider->parent)->y
+				myBoxCollider->x + getTransformSum(myBoxCollider->parent)->x,
+				myBoxCollider->y + getTransformSum(myBoxCollider->parent)->y
 			};
 
 			float pos2[2] =
@@ -374,10 +376,10 @@ namespace ECS
 
 			myCollisionPos = new CollisionPos(pos1, pos2, myBoxCollider);
 
-			int gridMinX = ceil(pos1[0] / collisionGridSize);
-			int gridMinY = ceil(pos1[1] / collisionGridSize);
-			int gridMaxX = ceil(pos2[0] / collisionGridSize);
-			int gridMaxY = ceil(pos2[1] / collisionGridSize);
+			int gridMinX = (int)ceil(pos1[0] / collisionGridSize);
+			int gridMinY = (int)ceil(pos1[1] / collisionGridSize);
+			int gridMaxX = (int)ceil(pos2[0] / collisionGridSize);
+			int gridMaxY = (int)ceil(pos2[1] / collisionGridSize);
 
 			for (int i = gridMinX; gridMinX <= gridMaxX; i++)
 			{

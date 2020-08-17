@@ -1,12 +1,2 @@
 ﻿  main.cpp
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(197,7): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(198,7): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(377,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(378,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(379,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\EntityComponentSystem.h(380,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\main.cpp(16,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\main.cpp(16,65): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\main.cpp(19,66): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\bart\source\repos\2DgameEngine\2DgameEngine\main.cpp(19,59): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   2DgameEngine.vcxproj -> C:\Users\bart\source\repos\2DgameEngine\Debug\2DgameEngine.exe
