@@ -140,7 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="EntityComponentSystem.h" />
-    <ClInclude Include="EntityComponentSystem2.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="olcPixelGameEngine.h" />
   </ItemGroup>
