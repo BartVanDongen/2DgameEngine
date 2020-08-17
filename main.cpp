@@ -25,7 +25,7 @@ public:
 
 		entity->addComponent(Component1);
 		entity->addComponent(Component2);
-		entity->addSubObject(subObject);
+		entity->addChild(subObject);
 		
 		entityList.push_back(entity);
 		return true;

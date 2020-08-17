@@ -10,6 +10,8 @@ using json = nlohmann::json;
 
 namespace ECS
 {
+	enum componentKey { component, transform, sprite, animation, boxCollider};
+
 	struct Component;
 	struct Transform;
 	struct Sprite;
@@ -33,15 +35,15 @@ namespace ECS
 
 		void addComponent(Component* aComponent);
 
-		void addSubObject(GameObject aGameObject);
+		void addChild(GameObject aGameObject);
 
 		GameObject* getParent();
 
-		map<string, Component*> getComponentMap();
+		map<componentKey, Component*> getComponentMap();
 
 	private:
 		bool hasParent = false;
-		map<string, Component*> componentMap;
+		map<componentKey, Component*> componentMap;
 		vector<GameObject> gameObjectMap;
 		GameObject* parent;
 	};
@@ -54,14 +56,14 @@ namespace ECS
 	{
 		Component() {}
 
-		virtual string getName();
+		virtual componentKey getName();
 	};
 
 	struct Transform : public Component
 	{
 		Transform(GameObject* aParent, int aX = 0.0f, int aY = 0.0f, float aScaleX = 1.0f, float aScaleY = 1.0f);
 
-		string getName();
+		componentKey getName();
 
 		float x;
 		float y;
@@ -74,7 +76,7 @@ namespace ECS
 	{
 		Sprite(GameObject* aParent, string aTileSetName);
 
-		string getName();
+		componentKey getName();
 
 		olc::Decal* objectDecal;
 		bool isActive = true;
@@ -85,7 +87,7 @@ namespace ECS
 	{
 		Animation(GameObject* aParent, string aTileSetName);
 
-		string getName();
+		componentKey getName();
 
 		vector<int> tileSetSize;
 		vector<int> tileSize;
@@ -102,7 +104,7 @@ namespace ECS
 		// custom size
 		BoxCollider(GameObject* aParent, vector<float> aPos, vector<int> aColliderSize);
 
-		string getName();
+		componentKey getName();
 
 		bool isActive = true;
 		vector<float> pos = { 0.0f, 0.0f };
@@ -161,11 +163,11 @@ namespace ECS
 
 	void GameObject::addComponent(Component* aComponent)
 	{
-		string name = aComponent->getName();
-		componentMap.insert(pair<string, Component*>(name, aComponent));
+		componentKey name = aComponent->getName();
+		componentMap.insert(pair<componentKey, Component*>(name, aComponent));
 	}
 
-	void GameObject::addSubObject(GameObject aGameObject)
+	void GameObject::addChild(GameObject aGameObject)
 	{
 		aGameObject.hasParent = true;
 		gameObjectMap.push_back(aGameObject);
@@ -176,7 +178,7 @@ namespace ECS
 		return parent;
 	}
 
-	map<string, Component*> GameObject::getComponentMap()
+	map<componentKey, Component*> GameObject::getComponentMap()
 	{
 		return componentMap;
 	}
@@ -185,9 +187,9 @@ namespace ECS
 	//		Component implimentetion	//
 	//----------------------------------//
 
-	string Component::getName()
+	componentKey Component::getName()
 	{
-		return "component";
+		return component;
 	}
 
 	Transform::Transform(GameObject* aParent, int aX, int aY, float aScaleX, float aScaleY)
@@ -200,9 +202,9 @@ namespace ECS
 		transformList.push_back(this);
 	}
 
-	string Transform::getName()
+	componentKey Transform::getName()
 	{
-		return "transform";
+		return transform;
 	}
 
 	Sprite::Sprite(GameObject* aParent, string aTileSetName)
@@ -212,9 +214,9 @@ namespace ECS
 		spriteList.push_back(this);
 	}
 
-	string Sprite::getName()
+	componentKey Sprite::getName()
 	{
-		return "sprite";
+		return sprite;
 	}
 
 	Animation::Animation(GameObject* aParent, string aTileSetName)
@@ -228,16 +230,16 @@ namespace ECS
 		animationList.push_back(this);
 	}
 
-	string Animation::getName()
+	componentKey Animation::getName()
 	{
-		return "animation";
+		return animation;
 	}
 
 	// sprite size
 	BoxCollider::BoxCollider(GameObject* aParent)
 	{
 		parent = aParent;
-		Animation* myAnimation = (Animation*)aParent->getComponentMap().find("sprite")->second;
+		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(sprite)->second;
 		colliderSize = myAnimation->tileSize;
 		boxColliderList.push_back(this);
 	}
@@ -251,9 +253,9 @@ namespace ECS
 		boxColliderList.push_back(this);
 	}
 
-	string BoxCollider::getName()
+	componentKey BoxCollider::getName()
 	{
-		return "boxCollider";
+		return boxCollider;
 	}
 
 	//----------------------------------//
@@ -303,7 +305,7 @@ namespace ECS
 
 		while (myParent)
 		{
-			Transform* myTransform = (Transform*)myParent->getComponentMap().find("transform")->second;
+			Transform* myTransform = (Transform*)myParent->getComponentMap().find(transform)->second;
 
 			myX += myTransform->x;
 			myY += myTransform->y;
@@ -327,9 +329,9 @@ namespace ECS
 				GameObject* myParent = mySprite->parent;
 				TransformSum* myTransformSum = getTransformSum(myParent);
 
-				if (mySprite->parent->getComponentMap().count("animation"))
+				if (mySprite->parent->getComponentMap().count(animation))
 				{
-					Animation* myAnimtation = (Animation*)mySprite->parent->getComponentMap().find("animation")->second;
+					Animation* myAnimtation = (Animation*)mySprite->parent->getComponentMap().find(animation)->second;
 					int tilesX = myAnimtation->tileSetSize[0] / myAnimtation->tileSize[0];
 					int TilesY = myAnimtation->tileSetSize[1] / myAnimtation->tileSize[1];
 					int tile = myAnimtation->tile;
@@ -393,6 +395,10 @@ namespace ECS
 		}
 
 		// remove blocks with identical colliderlists or lists that are one of size
+		for (auto& blockGrid : blockGridMap)
+		{
+
+		}
 
 
 		//narrow phase
