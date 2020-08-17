@@ -89,8 +89,10 @@ namespace ECS
 
 		componentKey getName();
 
-		vector<int> tileSetSize;
-		vector<int> tileSize;
+		int tileW;
+		int tileH;
+		int tileSetW;
+		int tileSetH;
 		int tile = 1;
 		map<string, vector<int>> animationMap;
 		GameObject* parent;
@@ -102,14 +104,15 @@ namespace ECS
 		BoxCollider(GameObject* aParent);
 
 		// custom size
-		BoxCollider(GameObject* aParent, float aX, float aY, vector<int> aColliderSize);
+		BoxCollider(GameObject* aParent, float aX, float aY, int aW, int aH);
 
 		componentKey getName();
 
 		bool isActive = true;
 		float x;
 		float y;
-		vector<int> colliderSize;
+		int w;
+		int h;
 		vector<BoxCollider*> collidingWith;
 		GameObject* parent;
 	};
@@ -224,8 +227,10 @@ namespace ECS
 	{
 		ifstream ifslevel("assets/" + aTileSetName + ".json");
 		json myJson = json::parse(ifslevel);
-		tileSetSize = myJson["tileSetSize"].get<vector<int>>();
-		tileSize = myJson["tileSize"].get<vector<int>>();
+		tileSetW = myJson.find("tileSetSize").value()[0];
+		tileSetH = myJson.find("tileSetSize").value()[1];
+		tileW = myJson.find("tileSize").value()[0];
+		tileH = myJson.find("tileSize").value()[1];
 		animationMap = myJson["Animation"].get<map<string, vector<int>>>();
 		parent = aParent;
 		animationList.push_back(this);
@@ -241,17 +246,19 @@ namespace ECS
 	{
 		parent = aParent;
 		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(componentKey::sprite)->second;
-		colliderSize = myAnimation->tileSize;
+		w = myAnimation->tileW;
+		h = myAnimation->tileH;
 		boxColliderList.push_back(this);
 	}
 
 	// custom size
-	BoxCollider::BoxCollider(GameObject* aParent, float aX, float aY, vector<int> aColliderSize)
+	BoxCollider::BoxCollider(GameObject* aParent, float aX, float aY, int aW, int aH)
 	{
 		parent = aParent;
 		x = aX;
 		y = aY;
-		colliderSize = aColliderSize;
+		w = aW;
+		h = aH;
 		boxColliderList.push_back(this);
 	}
 
@@ -334,12 +341,12 @@ namespace ECS
 				if (mySprite->parent->getComponentMap().count(componentKey::animation))
 				{
 					Animation* myAnimtation = (Animation*)mySprite->parent->getComponentMap().find(componentKey::animation)->second;
-					int tilesX = myAnimtation->tileSetSize[0] / myAnimtation->tileSize[0];
-					int TilesY = myAnimtation->tileSetSize[1] / myAnimtation->tileSize[1];
+					int tilesX = myAnimtation->tileSetW / myAnimtation->tileW;
+					int TilesY = myAnimtation->tileSetH / myAnimtation->tileH;
 					int tile = myAnimtation->tile;
-					aEngine->DrawPartialDecal({ myTransformSum->x, myTransformSum->y }, { (float)myAnimtation->tileSize[0] * myTransformSum->scaleX,
-						(float)myAnimtation->tileSize[1] * myTransformSum->scaleY }, mySprite->objectDecal, { (float)myAnimtation->tileSize[0] * (tile % tilesX),
-						(float)myAnimtation->tileSize[1] * (tile / TilesY) }, { (float)myAnimtation->tileSize[0], (float)myAnimtation->tileSize[1] });
+					aEngine->DrawPartialDecal({ myTransformSum->x, myTransformSum->y }, { (float)myAnimtation->tileW * myTransformSum->scaleX,
+						(float)myAnimtation->tileH * myTransformSum->scaleY }, mySprite->objectDecal, { (float)myAnimtation->tileW * (tile % tilesX),
+						(float)myAnimtation->tileH * (tile / TilesY) }, { (float)myAnimtation->tileW, (float)myAnimtation->tileH });
 				}
 				else
 				{
@@ -370,8 +377,8 @@ namespace ECS
 
 			float pos2[2] =
 			{
-				pos1[0] + myBoxCollider->colliderSize[0] * getTransformSum(myBoxCollider->parent)->scaleX,
-				pos1[1] + myBoxCollider->colliderSize[1] * getTransformSum(myBoxCollider->parent)->scaleY
+				pos1[0] + myBoxCollider->w * getTransformSum(myBoxCollider->parent)->scaleX,
+				pos1[1] + myBoxCollider->h * getTransformSum(myBoxCollider->parent)->scaleY
 			};
 
 			myCollisionPos = new CollisionPos(pos1, pos2, myBoxCollider);
