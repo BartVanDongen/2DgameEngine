@@ -14,17 +14,22 @@ public:
 		subObject = new ECS::GameObject(entity);
 
 		ECS::Component* subComponent1 = new ECS::Transform(subObject, 0.0f, 10.0f, 2.0f, 1.0f);
-		ECS::Component* subComponent2 = new ECS::Sprite(subObject, "test2");
-		ECS::Component* subComponent3 = new ECS::Animation(subObject, "test2");
-		ECS::Component* Component1 = new ECS::Transform(entity, 20.0f, 20.0f, 1.0f, 2.0f);
-		ECS::Component* Component2 = new ECS::Sprite(entity, "test");
-
 		subObject->addComponent(subComponent1);
+		ECS::Component* subComponent2 = new ECS::Sprite(subObject, "test2");
 		subObject->addComponent(subComponent2);
+		ECS::Component* subComponent3 = new ECS::Animation(subObject, "test2");
 		subObject->addComponent(subComponent3);
-
-		entity->addComponent(Component1);
-		entity->addComponent(Component2);
+		ECS::Component* subComponent4 = new ECS::BoxCollider(subObject);
+		subObject->addComponent(subComponent4);
+		ECS::Component* component1 = new ECS::Transform(entity, 20.0f, 20.0f, 1.0f, 2.0f);
+		entity->addComponent(component1);
+		ECS::Component* component2 = new ECS::Sprite(entity, "test");
+		entity->addComponent(component2);
+		ECS::Component* component3 = new ECS::Animation(entity, "test");
+		entity->addComponent(component3);
+		ECS::Component* component4 = new ECS::BoxCollider(entity);
+		entity->addComponent(component4);
+		
 		entity->addChild(subObject);
 		
 		entityList.push_back(entity);
@@ -34,6 +39,7 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		ECS::Renderer(this);
+		ECS::collision();
 		return true;
 	}
 

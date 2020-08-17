@@ -125,8 +125,6 @@ namespace ECS
 	{
 		CollisionPos(float aPos1[2], float aPos2[2], BoxCollider* aBoxCollider);
 
-		void setActive(BoxCollider* aBoxCollider);
-
 		float pos1[2];
 		float pos2[2];
 		BoxCollider* boxCollider;
@@ -245,7 +243,7 @@ namespace ECS
 	BoxCollider::BoxCollider(GameObject* aParent)
 	{
 		parent = aParent;
-		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(componentKey::sprite)->second;
+		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(componentKey::animation)->second;
 		x = 0.0f;
 		y = 0.0f;
 		w = myAnimation->tileW;
@@ -280,11 +278,6 @@ namespace ECS
 		pos2[0] = aPos2[0];
 		pos2[1] = aPos2[1];
 		boxCollider = aBoxCollider;
-	}
-
-	void CollisionPos::setActive(BoxCollider* aBoxCollider)
-	{
-		boxCollider->collidingWith.push_back(aBoxCollider);
 	}
 
 	Block::Block(CollisionPos* aBoxCollider)
@@ -364,11 +357,12 @@ namespace ECS
 
 		map<pair<int, int>, Block*> blockGridMap;
 
-		//broad phase
 		for (auto& myBoxCollider : boxColliderList)
 		{
 			if (!myBoxCollider->isActive)
 				break;
+
+			myBoxCollider->collidingWith.clear();
 
 			CollisionPos* myCollisionPos;
 
@@ -390,9 +384,9 @@ namespace ECS
 			int gridMaxX = (int)ceil(pos2[0] / collisionGridSize);
 			int gridMaxY = (int)ceil(pos2[1] / collisionGridSize);
 
-			for (int i = gridMinX; gridMinX <= gridMaxX; i++)
+			for (int i = gridMinX; i <= gridMaxX; i++)
 			{
-				for (int j = gridMinY; gridMinY <= gridMaxY; j++)
+				for (int j = gridMinY; j <= gridMaxY; j++)
 				{
 					if (blockGridMap.count(make_pair(i, j)))
 						blockGridMap.find(make_pair(i, j))->second->addCollider(myCollisionPos);
@@ -405,14 +399,39 @@ namespace ECS
 			}
 		}
 
-		// remove blocks with identical colliderlists or lists that are one of size
+		vector<vector<CollisionPos*>> duplicateTest;
+		vector<CollisionPos*>::iterator it;
 		for (auto& blockGrid : blockGridMap)
 		{
+			if (blockGrid.second->collidersList.size() < 2)
+			{
+				blockGridMap.erase(blockGrid.first);
+				break;
+			}
 
+			if (count(duplicateTest.begin(), duplicateTest.end(), blockGrid.second->collidersList))
+			{
+				blockGridMap.erase(blockGrid.first);
+				break;
+			}
+			else
+			{
+				duplicateTest.push_back(blockGrid.second->collidersList);
+			}
+
+			for (auto& myBoxCollider1 : blockGrid.second->collidersList)
+			{
+				for (auto& myBoxCollider2 : blockGrid.second->collidersList)
+				{
+					if (myBoxCollider1 == myBoxCollider2)
+						break;
+					else if (myBoxCollider1->pos1[0] < myBoxCollider2->pos2[0] && myBoxCollider1->pos2[0] > myBoxCollider2->pos1[0] &&
+						myBoxCollider1->pos1[1] < myBoxCollider2->pos2[1] && myBoxCollider1->pos2[1] > myBoxCollider2->pos1[1])
+					{
+						myBoxCollider1->boxCollider->collidingWith.push_back(myBoxCollider2->boxCollider);
+					}
+				}
+			}
 		}
-
-
-		//narrow phase
-
 	}
 }
