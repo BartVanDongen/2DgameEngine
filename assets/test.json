@@ -1,0 +1,8 @@
+{
+  "tileSetSize": [ 16, 16 ],
+  "tileSize": [ 16, 16 ],
+  "Animation": {
+    "idle": [0],
+    "move": [0]
+  }
+}
