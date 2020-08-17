@@ -246,6 +246,8 @@ namespace ECS
 	{
 		parent = aParent;
 		Animation* myAnimation = (Animation*)aParent->getComponentMap().find(componentKey::sprite)->second;
+		x = 0.0f;
+		y = 0.0f;
 		w = myAnimation->tileW;
 		h = myAnimation->tileH;
 		boxColliderList.push_back(this);
