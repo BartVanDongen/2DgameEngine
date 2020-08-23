@@ -353,7 +353,7 @@ namespace ECS
 
 	void collision()
 	{
-		int collisionGridSize = 32;
+		int collisionGridSize = 23;
 
 		map<pair<int, int>, Block*> blockGridMap;
 
