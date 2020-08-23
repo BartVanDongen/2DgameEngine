@@ -362,6 +362,8 @@ namespace ECS
 			if (!myBoxCollider->isActive)
 				break;
 
+			Animation* myAnimation = (Animation*)myBoxCollider->parent->getComponentMap().find(componentKey::animation)->second;
+			myAnimation->tile = 1;
 			myBoxCollider->collidingWith.clear();
 
 			CollisionPos* myCollisionPos;
@@ -401,33 +403,37 @@ namespace ECS
 
 		vector<vector<CollisionPos*>> duplicateTest;
 		vector<CollisionPos*>::iterator it;
-		for (auto& blockGrid : blockGridMap)
+		for (auto it = blockGridMap.cbegin(), next_it = it; it != blockGridMap.cend(); it = next_it)
 		{
-			if (blockGrid.second->collidersList.size() < 2)
+			++next_it;
+			if (it->second->collidersList.size() < 2)
 			{
-				blockGridMap.erase(blockGrid.first);
-				break;
+				blockGridMap.erase(it);
+				continue;
 			}
 
-			if (count(duplicateTest.begin(), duplicateTest.end(), blockGrid.second->collidersList))
+			if (count(duplicateTest.begin(), duplicateTest.end(), it->second->collidersList))
 			{
-				blockGridMap.erase(blockGrid.first);
-				break;
+				blockGridMap.erase(it->first);
+				continue;
 			}
 			else
 			{
-				duplicateTest.push_back(blockGrid.second->collidersList);
+				duplicateTest.push_back(it->second->collidersList);
 			}
 
-			for (auto& myBoxCollider1 : blockGrid.second->collidersList)
+			for (auto& myBoxCollider1 : it->second->collidersList)
 			{
-				for (auto& myBoxCollider2 : blockGrid.second->collidersList)
+				Animation* myAnimation = (Animation*)myBoxCollider1->boxCollider->parent->getComponentMap().find(componentKey::animation)->second;
+
+				for (auto& myBoxCollider2 : it->second->collidersList)
 				{
 					if (myBoxCollider1 == myBoxCollider2)
-						break;
+						continue;
 					else if (myBoxCollider1->pos1[0] < myBoxCollider2->pos2[0] && myBoxCollider1->pos2[0] > myBoxCollider2->pos1[0] &&
 						myBoxCollider1->pos1[1] < myBoxCollider2->pos2[1] && myBoxCollider1->pos2[1] > myBoxCollider2->pos1[1])
 					{
+						myAnimation->tile = 2;
 						myBoxCollider1->boxCollider->collidingWith.push_back(myBoxCollider2->boxCollider);
 					}
 				}
